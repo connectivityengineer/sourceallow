@@ -1,13 +1,5 @@
 #!/bin/bash
 
-### a quick dirty script by Connectivity Engineer 
-### script to allow our  iptv sources
-### source ulrs must be in the file /mme/allowables.list
-#### or change the location below to fit your file location
-
-ALLOWABLES="/mme/allowables.list"
-#!/bin/bash
-
 ALLOWABLES="/mme/allowables.list"
 
 # Check if the file exists
@@ -16,23 +8,35 @@ if [ ! -f "$ALLOWABLES" ]; then
     exit 1
 fi
 
+# Function to check if a string is an IP
+is_ip() {
+    [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
+
 # Process each line in the file
-while IFS= read -r domain; do
+while IFS= read -r entry; do
     # Skip empty lines
-    [ -z "$domain" ] && continue
+    [ -z "$entry" ] && continue
 
-    # Perform DNS lookup
-    ips=$(dig +short "$domain")
+    # If the entry is an IP, update UFW directly
+    if is_ip "$entry"; then
+        echo "Allowing $entry from allowables.list"
+        ufw allow in from "$entry" comment "$entry"
+        ufw allow out to "$entry" comment "$entry"
+    else
+        # Perform DNS lookup
+        ips=$(dig +short "$entry")
 
-    # For each IP, update the UFW
-    for ip in $ips; do
-        # Make sure it's a valid IP (avoiding CNAME or other types of records)
-        if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Allowing $ip for domain $domain"
-            ufw allow in from "$ip" comment "$domain"
-            ufw allow out to "$ip" comment "$domain"
-        fi
-    done
+        # For each IP, update the UFW
+        for ip in $ips; do
+            # Make sure it's a valid IP (avoiding CNAME or other types of records)
+            if is_ip "$ip"; then
+                echo "Allowing $ip for domain $entry"
+                ufw allow in from "$ip" comment "$entry"
+                ufw allow out to "$ip" comment "$entry"
+            fi
+        done
+    fi
 done < "$ALLOWABLES"
 
-echo "Firewall rules updated based on the domains in $ALLOWABLES"
+echo "Firewall rules updated based on the entries in $ALLOWABLES"
