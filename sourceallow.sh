@@ -1,5 +1,5 @@
 #!/bin/bash
-
+### edit this location below if your allowables list file is in a different directory
 ALLOWABLES="/mme/allowables.list"
 
 # Check if the file exists
