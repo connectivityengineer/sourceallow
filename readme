@@ -1,0 +1,53 @@
+sourceallow.sh is a script designed to read a list of domains from a specified file, 
+perform DNS lookups on those domains, and subsequently update UFW (Uncomplicated Firewall) rules
+to allow inbound and outbound traffic for the IP addresses associated with these domains.
+
+Usage:
+To run the script:
+
+sudo ./sourceallow.sh
+
+It's essential to run this script with root (or sudo) permissions because updating UFW rules requires administrative rights.
+
+File Structure:
+The default list of allowable domains is located at /mme/allowables.list. Each domain should be listed on a new line in this file.
+
+Example:
+example.com
+another-domain.org
+yetanotherdomain.net
+
+
+
+Modifying the List Location:
+If you wish to change the location of the allowables.list file:
+
+Open the sourceallow.sh script in your preferred text editor.
+Locate the line: ALLOWABLES="/mme/allowables.list".
+Modify the path inside the quotes to point to your new file location.
+For example, if your list is located at /mydir/mylist.txt, you'd modify the line to read:
+ALLOWABLES="/mydir/mylist.txt"
+
+
+How the Script Works:
+The script first checks if the allowables.list file exists.
+It then reads each domain from the file one by one.
+For each domain, a DNS lookup is performed to retrieve its associated IP addresses.
+The script then creates UFW allow rules for each IP address, both for nbound and outbound traffic.
+Additionally, a comment is added to the rule to specify which domain the IP is associated with.
+
+Handling Multiple IPs:
+If a domain resolves to multiple IP addresses, the script can handle and create rules for each of those IP addresses.
+
+Dependencies:
+The script requires the dig command to be available, which is a part of the dnsutils package. 
+To install dnsutils on an Ubuntu/Debian system go to shell and use this command
+
+sudo apt-get install dnsutils -y
+
+Safety Precautions:
+Always make backups of your current UFW rules before running this or any other script that modifies them.
+It's recommended to test the script in a safe/non-production environment first.
+Always review the contents of scripts before executing them, especially when they require root privileges.
+
+
