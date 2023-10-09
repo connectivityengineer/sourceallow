@@ -1,4 +1,4 @@
-sourceallow.sh is a script designed to read a list of domains from a specified file, 
+sourceallow.sh is a script designed to read a list of domains  and ip addresses from a specified file, 
 perform DNS lookups on those domains, and subsequently update UFW (Uncomplicated Firewall) rules
 to allow inbound and outbound traffic for the IP addresses associated with these domains.
 
